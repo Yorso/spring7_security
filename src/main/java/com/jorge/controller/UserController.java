@@ -19,14 +19,13 @@ public class UserController {
 	
 	// Controller method to process the form when it's submitted.
 	// It's called for HTTP POST requests (because of method=RequestMethod.POST )
-	/*@RequestMapping(value="/login", method=RequestMethod.POST)
+	@RequestMapping(value="/login", method=RequestMethod.POST)
 	public String loginSubmit(HttpServletRequest request) {
-		System.out.println(new Exception().getStackTrace()[0].getMethodName()); // Name of current method to console
+		System.out.println("WWWWWWWWW: " + new Exception().getStackTrace()[0].getMethodName()); // Name of current method to console
 		String firstName = request.getParameter("firstName");
 
 		//return "redirect:/home"; // Doesn't work
-		return "home"; // Go to home.jsp
+		return "login"; // Go to home.jsp
 	}
-	*/
 	
 }

@@ -1,7 +1,14 @@
 package com.jorge.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,6 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  */
 @Configuration
 @EnableWebSecurity
+@ComponentScan(basePackages = { "com.jorge.controller" }) // This scans the com.jorge.controller package for Spring components
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	/**
@@ -32,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	 * This is defined in the default configure() method of Spring Security
 	 * 
 	 */
-	@Autowired
+	/*@Autowired
 	public void configureUsers(AuthenticationManagerBuilder auth) throws Exception {
 		auth.inMemoryAuthentication()
 		.withUser("user1").password("pwd").roles("USER")
@@ -54,5 +62,61 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().anyRequest().authenticated(); // Requires authentication for any URL (anyRequest().authenticated())
 		http.formLogin().loginPage("/login").permitAll(); // Allows user authentication through the custom login page (formLogin().loginPage("/login")) and
 														  // allows anyone access to the login page (loginPage("/login").permitAll())
+	}
+	
+	/**
+	 * Authenticating users using a database
+	 * 
+	 */
+	// Database connection details
+	@Bean
+	public DataSource dataSource() {
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		
+		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		dataSource.setUrl("jdbc:mysql://localhost:3306/test1");
+		dataSource.setUsername("user1");
+		dataSource.setPassword("user1pass");
+		
+		return dataSource;
+	}
+	
+	/**
+	 * It is a Spring object that provides convenient methods to query a database
+	 * using JDBC. It uses the previously defined DataSource bean (above). We will use the JdbcTemplate bean
+	 * from our DAO classes
+	 * 
+	 */
+	@Bean
+	public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+		return new JdbcTemplate(dataSource);
+	}
+	
+	/**
+	 * Reverting incomplete database modifications using transactions
+	 * Some database modifications involve several SQL queries, for example, inserting an object with
+	 * attributes spread across several tables. If one of the queries fails, we would want to undo any
+	 * previous ones that were successful
+	 * 
+	 */
+	@Bean
+	public DataSourceTransactionManager transactionManager() {
+		DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
+		
+		transactionManager.setDataSource(dataSource());
+		
+		return transactionManager;
+	}
+	
+	// With the configure() method overridden, Spring Security will:
+	// 		Use JDBC for authentication
+	//		Use the provided DataSource bean to connect to the database
+	//		Perform these SQL queries to get users and their roles
+	@Autowired
+	public void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.jdbcAuthentication()
+		.dataSource(dataSource())
+		.usersByUsernameQuery("select username,password,enabled from users where username=?")
+		.authoritiesByUsernameQuery("select username,authority from authorities where username=?");
 	}
 }

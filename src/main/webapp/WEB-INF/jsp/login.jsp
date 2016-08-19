@@ -16,7 +16,8 @@
 		
 		<c:url var="loginUrl" value="/login" />
 		
-		<form action="${loginUrl}" method="post">
+		<form:form method="POST" action="login">
+		
 			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 			
 			<c:if test="${param.error != null}">
@@ -36,7 +37,8 @@
 			</p>
 			
 			<button type="submit">Log in</button>
-		</form>
+			
+		</form:form>
 		
 	</body>
 </html>
