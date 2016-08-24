@@ -92,7 +92,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.usersByUsernameQuery("select username,password,enabled from users where username=?")
 		.authoritiesByUsernameQuery("select username,authority from authorities where username=?");
 		
-		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": Authenticating users using a database"); // Name of current method to console
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + " (@Autowired): Authenticating users using a database"); // Name of current method to console
 	}
 	
 	
@@ -121,7 +121,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.anyRequest()
 				.authenticated(); // Pages need authentication
 		
-		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": Custom page 'login.jsp' redirecting to 'home.jsp' when authenticated"); // Name of current method to console
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + " (@Override): Custom page 'login.jsp' redirecting to 'home.jsp' when authenticated"); // Name of current method to console
 		
 	}
 	
