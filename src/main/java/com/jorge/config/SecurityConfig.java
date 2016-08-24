@@ -29,7 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	/**
-	 * Authenticating users using the default login page
+	 * Authenticating users using inMemoryAuthentication() method
 	 * 
 	 * Spring makes it easy to quickly add a login page to your web application; just define some user
 	 * credentials (usernames and passwords) in the security configuration class. To access any page, the
@@ -47,6 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.withUser("a").password("a").roles("ADMIN")
 		.and()
 		.withUser("admin").password("admin_pwd").roles("USER", "ADMIN");
+		
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": Authenticating users using inMemoryAuthentication() method"); // Name of current method to console
 	}*/
 	
 	
@@ -89,11 +91,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.dataSource(dataSource())
 		.usersByUsernameQuery("select username,password,enabled from users where username=?")
 		.authoritiesByUsernameQuery("select username,authority from authorities where username=?");
+		
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": Authenticating users using a database"); // Name of current method to console
 	}
 	
 	
 	/**
-	 *  Override the Spring's default configure() method. Declare the URL of your custom login page, it's not for DEFAULT page
+	 * Override the Spring's default configure() method. Declare the URL of your custom login page, it's not for DEFAULT page
 	 *
 	 * By default, the Spring's default login page will be used to protect all the pages of the web application.
 	 * This is defined in the default configure() method of Spring Security
@@ -116,6 +120,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 				.anyRequest()
 				.authenticated(); // Pages need authentication
+		
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": Custom page 'login.jsp' redirecting to 'home.jsp' when authenticated"); // Name of current method to console
 		
 	}
 	

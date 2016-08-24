@@ -16,7 +16,7 @@
 		
 		<c:url var="loginUrl" value="login" />
 		
-		<form method="POST" action="login">
+		<form method="POST" action="${loginUrl}">
 		
 			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 			

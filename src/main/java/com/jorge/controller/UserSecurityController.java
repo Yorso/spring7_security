@@ -18,10 +18,9 @@ public class UserSecurityController {
 	}
 	
 	// Controller method to process the form when it's submitted.
-	// It's called for HTTP POST requests (because of method=RequestMethod.POST )
 	@RequestMapping(value="/home", method=RequestMethod.GET)
 	public String loginSubmit(HttpServletRequest request) {
-		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": User authenticated!! Redirecting to home from login page "); // Name of current method to console
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": User authenticated!! Redirecting to home from login page");
 
 		return "home";
 	}
