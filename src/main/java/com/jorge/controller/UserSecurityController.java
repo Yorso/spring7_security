@@ -7,25 +7,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller // This says this class is a controller
-public class UserController {
-
+public class UserSecurityController {
+	
 	// Controller method to display the form.
 	// It's called for HTTP GET requests
 	// Necessary to authenticating users using a CUSTOM login page, not for DEFAULT page
-	@RequestMapping("/login")
+	@RequestMapping(value="/login", method=RequestMethod.GET)
 	public String login() {
 		return "login";
 	}
 	
 	// Controller method to process the form when it's submitted.
 	// It's called for HTTP POST requests (because of method=RequestMethod.POST )
-	@RequestMapping(value="/login", method=RequestMethod.POST)
+	@RequestMapping(value="/home", method=RequestMethod.GET)
 	public String loginSubmit(HttpServletRequest request) {
-		System.out.println("WWWWWWWWW: " + new Exception().getStackTrace()[0].getMethodName()); // Name of current method to console
-		String firstName = request.getParameter("firstName");
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + ": User authenticated!! Redirecting to home from login page "); // Name of current method to console
 
-		//return "redirect:/home"; // Doesn't work
-		return "login"; // Go to home.jsp
+		return "home";
 	}
 	
 }

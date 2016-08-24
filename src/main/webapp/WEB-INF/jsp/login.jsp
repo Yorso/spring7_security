@@ -14,9 +14,9 @@
 		
 		<h3>CUSTOM PAGE</h3>
 		
-		<c:url var="loginUrl" value="/login" />
+		<c:url var="loginUrl" value="login" />
 		
-		<form:form method="POST" action="login">
+		<form method="POST" action="login">
 		
 			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 			
@@ -37,8 +37,9 @@
 			</p>
 			
 			<button type="submit">Log in</button>
+			<!-- input type="submit" value="Log in"/>  -->
 			
-		</form:form>
+		</form>
 		
 	</body>
 </html>
