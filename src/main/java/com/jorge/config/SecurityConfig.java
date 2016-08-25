@@ -9,9 +9,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * Class for the Spring Security configuration
@@ -80,19 +82,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return transactionManager;
 	}
 	
-	// With the configure() method overridden, Spring Security will:
-	// 		Use JDBC for authentication
-	//		Use the provided DataSource bean to connect to the database
-	//		Perform these SQL queries to get users and their roles
+	
+	/**
+	 *  With the configure() method overridden, Spring Security will:
+	 *  	Use JDBC for authentication
+	 *		Use the provided DataSource bean to connect to the database
+	 *		Perform these SQL queries to get users and their roles
+	 */
 	@Autowired
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 		
 		auth.jdbcAuthentication()
 		.dataSource(dataSource())
-		.usersByUsernameQuery("select username,password,enabled from users where username=?")
-		.authoritiesByUsernameQuery("select username,authority from authorities where username=?");
-		
-		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + " (@Autowired): Authenticating users using a database"); // Name of current method to console
+		.usersByUsernameQuery("select username, password, enabled from users where username=?")
+		.authoritiesByUsernameQuery("select username, authority from authorities where username=?");
+
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + " (AuthenticationManagerBuilder): Authenticating users using a database"); // Name of current method to console
 	}
 	
 	
@@ -102,9 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	 * By default, the Spring's default login page will be used to protect all the pages of the web application.
 	 * This is defined in the default configure() method of Spring Security
 	 * 
-	 * Comment this method to display DEFAULT page
-	 * 
-	 * A good example of this with more options and depending on type of user (admin, simply an user or whatever...) goes to a page or another:
+	 * A good example of this with more options and depending on type of user (admin, simply an user or whatever...), goes to a page or another:
 	 * http://www.mkyong.com/spring-security/spring-security-form-login-using-database/
 	 * 
 	 */
@@ -112,17 +115,52 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		
 		http
-		    .formLogin()
-		        .loginPage("/login") // Custom login page
-		        .permitAll() // Login page is visible for evrerybody
-		        .defaultSuccessUrl("/home");
+		.authorizeRequests()
+			//.antMatchers("/css/**", "/js/**", "/img/**").permitAll() // Doing same thing in 'public void configure(WebSecurity web)' method.
+																	   // This enables public access to these folders, but requires authentication for any other request.
+			.antMatchers("/admin/**").hasAuthority("ADMIN") // Authorizing only users with a specific authority to view some pages. I.e: ADMIN authority can have access to admin pages in admin folder
+			//hasRole("ADMIN") // Authorizing only users with a specific role to view some pages. I.e: ADMIN role can have access to admin pages in admin folder
+			.anyRequest()
+			.authenticated(); // Pages require authentication for any request
+		
 		http
-			.authorizeRequests()
-				.anyRequest()
-				.authenticated(); // Pages need authentication
+		    .formLogin()
+		        .loginPage("/login") // CUSTOM login page. Allows user authentication through the custom login page. Comment this line to get DEFAULT login page.
+		        .permitAll() // Allows anyone access to the login page
+				.defaultSuccessUrl("/home")
+				.failureUrl("/login?error");
 		
-		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + " (@Override): Custom page 'login.jsp' redirecting to 'home.jsp' when authenticated"); // Name of current method to console
+		// logout link (in home.jsp or writing "logout" in URL)
+		AntPathRequestMatcher pathRequestMatcher = new AntPathRequestMatcher("/logout");
+		http
+			.logout()
+				.logoutRequestMatcher(pathRequestMatcher) // While going to the URL /logout , the user will be logged out
+				.logoutSuccessUrl("/login");
 		
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + " (HttpSecurity): Custom page 'login.jsp' redirecting to 'home.jsp' when authenticated, including logout link and button (submit) in 'home.jsp'. Only ADMIN role can have access to admin folder pages."); // Name of current method to console
+		
+	}
+	
+	/**
+	 * Using public folders
+	 *
+	 * Some folders need their contents to be accessible without authentication, for example, the folder
+	 * containing CSS files, the folder containing JavaScript files, and the folder containing static images.
+	 * None of these usually contain confidential information and some of their files may be necessary to
+	 * display the login page and the public pages of the website properly.
+	 * 
+	 * This enables public access to these folders
+	 * 
+	 */
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		web
+			.ignoring()
+				.antMatchers("/css/**")
+				.antMatchers("/js/**")
+				.antMatchers("/img/**");
+		
+		System.out.println(this.getClass().getSimpleName() + "." + new Exception().getStackTrace()[0].getMethodName() + " (WebSecurity): Ignoring public folders (i.e.)"); // Name of current method to console
 	}
 	
 }

@@ -12,9 +12,11 @@
 
 	<body>
 		
-		<h3>CUSTOM PAGE</h3>
+		<h1>CUSTOM Page</h1>
 		
 		<c:url var="loginUrl" value="login" />
+		
+		Value of loginUrl: <b>${loginUrl}</b>
 		
 		<form method="POST" action="${loginUrl}">
 		

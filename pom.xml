@@ -73,6 +73,14 @@
 			<version>4.0.3.RELEASE</version>
 		</dependency>
 		
+		<!-- Add the Maven dependency for the Spring Security JSP tags library -->
+		<!-- Displaying page elements only to authenticated users in views -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
+			<version>3.2.5.RELEASE</version>
+		</dependency>
+
 	</dependencies>
 	
   <build>
